@@ -1,0 +1,47 @@
+[
+  {
+    "_id": {
+      "$oid": "000000000000000000000a00"
+    },
+    "dictionary_data": {
+      "region": "000000000000000000000201",
+      "city": "000000000000000000000301",
+      "tags": [
+        "000000000000000000000c02"
+      ],
+      "season_start": {
+        "$date": "2023-06-01T00:00:00Z"
+      },
+      "season_end": {
+        "$date": "2023-09-01T00:00:00Z"
+      },
+      "price": "15000",
+      "hotel_stars": "4",
+      "min_age": "6+",
+      "complexity": "easy",
+      "days": 3,
+      "nights": 2,
+      "route": [
+        {
+          "events": [],
+          "day_contents": {
+            "dictionaries": [
+              "000000000000000000000401"
+            ],
+            "selected": [
+              {
+                "id": "000000000000000000000401",
+                "active": true
+              }
+            ],
+            "active": [
+              "000000000000000000000401"
+            ]
+          }
+        }
+      ],
+      "tour_type": "city",
+      "import_denied": false
+    }
+  }
+]

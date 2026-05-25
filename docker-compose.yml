@@ -1,0 +1,167 @@
+version: '3'
+
+volumes:
+  recommender-db-data:
+
+services:
+  recommender-traefik:
+    image: registry.gitlab.com/sunkek/leaders2023:traefik
+    build:
+      context: ./traefik
+      dockerfile: ./docker/Dockerfile
+    container_name: recommender-traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/ssl/:/etc/traefik/acme:z
+      - ./traefik/traefik.yml:/traefik.yml:ro
+      - ./traefik/custom/:/custom/:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - traefik.enable=false
+
+  recommender-db:
+    image: neo4j:5.7.0
+    container_name: recommender-db
+    restart: unless-stopped
+    ports:
+      - 7474:7474
+      - 7687:7687
+    env_file:
+      - db.env
+    volumes:
+      - recommender-db-data:/data
+    healthcheck:
+      test: wget -O/dev/null -q http://localhost:7474 || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+    labels:
+      - traefik.enable=true
+      # TODO Починить SSL
+      # Browser UI
+      - traefik.http.services.recommender-db-ui.loadbalancer.server.port=7474
+      - traefik.http.routers.recommender-db-ui-http.rule=Host(`db.recommender.suncake.xyz`) && PathPrefix(`/browser`)
+      - traefik.http.routers.recommender-db-ui-http.service=recommender-db-ui
+      - traefik.http.routers.recommender-db-ui-http.entrypoints=http
+      - traefik.http.routers.recommender-db-ui-http.middlewares=to-https@file
+
+      - traefik.http.routers.recommender-db-ui-https.rule=Host(`db.recommender.suncake.xyz`) && PathPrefix(`/browser`)
+      - traefik.http.routers.recommender-db-ui-https.service=recommender-db-ui
+      - traefik.http.routers.recommender-db-ui-https.entrypoints=https
+      - traefik.http.routers.recommender-db-ui-https.tls=true
+
+      # Database for browser UI
+      - traefik.http.services.recommender-db.loadbalancer.server.port=7687
+      - traefik.http.routers.recommender-db-http.rule=Host(`db.recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-db-http.service=recommender-db
+      - traefik.http.routers.recommender-db-http.entrypoints=http
+      - traefik.http.routers.recommender-db-http.middlewares=to-https@file
+
+      - traefik.http.routers.recommender-db-https.rule=Host(`db.recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-db-https.service=recommender-db
+      - traefik.http.routers.recommender-db-https.entrypoints=https
+      - traefik.http.routers.recommender-db-https.tls=true
+
+      # Database for drivers
+      - traefik.tcp.services.recommender-db-http.loadbalancer.server.port=7687
+      - traefik.tcp.routers.recommender-db-http.rule=HostSNI(`db.recommender.suncake.xyz`)
+      - traefik.tcp.routers.recommender-db-http.service=recommender-db-http
+      - traefik.tcp.routers.recommender-db-http.entrypoints=neo4j-tcp
+      - traefik.tcp.routers.recommender-db-http.tls.passthrough=true
+      - traefik.tcp.routers.recommender-db-http.tls=true
+
+  recommender-api:
+    image: registry.gitlab.com/sunkek/leaders2023:api
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+    container_name: recommender-api
+    restart: unless-stopped
+    expose:
+      - 80
+    env_file:
+      - api.env
+    depends_on:
+      recommender-db:
+        condition: service_healthy
+    healthcheck:
+      test: wget -O/dev/null -q http://localhost:80/health || exit 0
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 3s
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.recommender-api.loadbalancer.server.port=80
+      - traefik.http.routers.recommender-api-http.entrypoints=http
+      - traefik.http.routers.recommender-api-http.rule=Host(`api.recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-api-http.middlewares=to-https@file
+      - traefik.http.routers.recommender-api-https.service=recommender-api
+      - traefik.http.routers.recommender-api-https.entrypoints=https
+      - traefik.http.routers.recommender-api-https.rule=Host(`api.recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-api-https.tls.certresolver=letsencrypt
+
+  recommender-form:
+    image: registry.gitlab.com/sunkek/leaders2023:form
+    build:
+      context: ./form
+      dockerfile: ./docker/Dockerfile
+    container_name: recommender-form
+    restart: unless-stopped
+    expose:
+      - 80
+    depends_on:
+      recommender-api:
+        condition: service_healthy
+    healthcheck:
+      test: wget -O/dev/null -q http://localhost:80/ || exit 0
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 3s
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.recommender-form.loadbalancer.server.port=80
+      - traefik.http.routers.recommender-form-http.entrypoints=http
+      - traefik.http.routers.recommender-form-http.rule=Host(`form.recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-form-http.middlewares=to-https@file
+      - traefik.http.routers.recommender-form-https.service=recommender-form
+      - traefik.http.routers.recommender-form-https.entrypoints=https
+      - traefik.http.routers.recommender-form-https.rule=Host(`form.recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-form-https.tls.certresolver=letsencrypt
+
+  recommender-form-recommend:
+    image: registry.gitlab.com/sunkek/leaders2023:form-recommend
+    build:
+      context: ./form-recommend
+      dockerfile: ./docker/Dockerfile
+    container_name: recommender-form-recommend
+    restart: unless-stopped
+    expose:
+      - 80
+    depends_on:
+      recommender-api:
+        condition: service_healthy
+    healthcheck:
+      test: wget -O/dev/null -q http://localhost:80/ || exit 0
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 3s
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.recommender-form-recommend.loadbalancer.server.port=80
+      - traefik.http.routers.recommender-form-recommend-http.entrypoints=http
+      - traefik.http.routers.recommender-form-recommend-http.rule=Host(`recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-form-recommend-http.middlewares=to-https@file
+      - traefik.http.routers.recommender-form-recommend-https.service=recommender-form-recommend
+      - traefik.http.routers.recommender-form-recommend-https.entrypoints=https
+      - traefik.http.routers.recommender-form-recommend-https.rule=Host(`recommender.suncake.xyz`)
+      - traefik.http.routers.recommender-form-recommend-https.tls.certresolver=letsencrypt

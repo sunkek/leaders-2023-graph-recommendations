@@ -1,0 +1,76 @@
+version: '3'
+
+volumes:
+  recommender-db-data:
+
+services:
+  recommender-db:
+    image: neo4j:5.7.0
+    container_name: recommender-db
+    restart: unless-stopped
+    expose:
+      - 7474
+      - 7687
+    ports:
+      - 7474:7474
+      - 7687:7687
+    env_file:
+      - db.env
+    volumes:
+      - recommender-db-data:/data
+    healthcheck:
+      test: wget -O/dev/null -q http://localhost:7474 || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 10s
+
+  recommender-api:
+    image: registry.gitlab.com/sunkek/leaders2023:api
+    build:
+      context: ./api
+      dockerfile: ./docker/Dockerfile
+    container_name: recommender-api
+    restart: unless-stopped
+    expose:
+      - 80
+    ports:
+      - 8000:80
+    env_file:
+      - api.env
+    healthcheck:
+      test: wget -O/dev/null -q http://localhost:80/health || exit 0
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 3s
+
+  recommender-form:
+    image: registry.gitlab.com/sunkek/leaders2023:form
+    build:
+      context: ./form
+      dockerfile: ./docker/Dockerfile
+    container_name: recommender-form
+    restart: unless-stopped
+    expose:
+      - 80
+    ports:
+      - "8080:80"
+    depends_on:
+      recommender-api:
+        condition: service_healthy
+
+  recommender-form-recommend:
+    image: registry.gitlab.com/sunkek/leaders2023:form-recommend
+    build:
+      context: ./form-recommend
+      dockerfile: ./docker/Dockerfile
+    container_name: recommender-form-recommend
+    restart: unless-stopped
+    expose:
+      - 80
+    ports:
+      - "8081:80"
+    depends_on:
+      recommender-api:
+        condition: service_healthy

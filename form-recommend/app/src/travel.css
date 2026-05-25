@@ -1,0 +1,210 @@
+@font-face {
+  font-family: 'Suisse Intl medium';
+  font-style: medium;
+  font-weight: 500;
+  src: url('./style/fonts/SuisseIntl-Medium.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Suisse Intl';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./style/fonts/SuisseIntl-Regular.otf') format('opentype');
+}
+@font-face {
+  font-family: 'Proto Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./style/fonts/ProtoGrotesk-Regular.ttf') format('truetype');
+}
+
+h1 {
+  font-size: 36px;
+  margin-top: 3px;
+  color: #1d1d1d;
+  text-align: center;
+  font-family: 'Proto Grotesk';
+  font-style: medium;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.form {
+  border-radius: 20px;
+  width: 700px;
+  min-height: 390px;
+  max-height: max-content;
+  margin-top: 5px;
+  font-family: 'Suisse Intl medium';
+  display: flex;
+  flex-direction: row;
+
+  border: #ffcf08 5px solid;
+  justify-content: center;
+  background: #fffbf3;
+  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+.budgetInput input {
+  background: #ffffff;
+}
+.container {
+  width: 400px;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: space-around;
+  display: flex;
+}
+.recomend {
+  justify-content: space-between;
+  border: 3px solid #d9d9d9;
+  border-radius: 12px;
+  padding: 5px 5px;
+  min-height: 60px;
+  display: flex;
+  gap: 2px;
+  flex-direction: column;
+  align-items: center;
+}
+.recomend p {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 16px;
+  width: 350px;
+  height: 36px;
+  font-style: medium;
+  font-weight: 500;
+  line-height: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
+  outline: none;
+  border: 1px solid;
+  border-color: #d9d9d9;
+}
+.submitDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+
+.submitButton {
+  font-size: 16px;
+
+  border-radius: 15px;
+  border: 0;
+
+  width: 300px;
+  height: 48px;
+  background-color: #ffcf08;
+}
+.submitButton:hover {
+  background-color: #e6b900;
+}
+.submitButton:active {
+  background-color: #cca500;
+}
+
+.resetButton {
+  font-size: 16px;
+  border-radius: 15px;
+  border: #ffcf08 2px solid;
+  width: 300px;
+  height: 48px;
+  background-color: transparent;
+}
+.resetButton:hover {
+  border: #d9d9d9 2px solid;
+}
+.resetButton:active {
+  border: #cca500 2px solid;
+}
+.email {
+  width: 400px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dateControl {
+  width: 400px;
+  height: 100px;
+  margin: 5px 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dateControl input {
+  display: block !important;
+  font-size: 16px;
+  width: 175px;
+  border: 1px solid;
+  border-color: #d9d9d9;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 16px;
+  line-height: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
+  outline: none;
+}
+.textField,
+.dropdown,
+.dateControl input {
+  height: 36px;
+  font-family: 'Suisse Intl medium';
+}
+.region {
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.textField {
+  width: 350px;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 16px;
+  font-style: medium;
+  font-weight: 500;
+  line-height: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
+  outline: none;
+  border: 1px solid;
+  border-color: #d9d9d9;
+}
+
+::placeholder {
+  color: #a6a6a6;
+  font-size: 16px;
+}
+
+input:hover {
+  border: 2px solid #d9d9d9;
+}
+
+input:focus {
+  border: 2px solid #e5b900;
+}
+
+label {
+  font-family: 'Suisse Intl';
+  font-style: normal;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.errMessage {
+  font-family: 'Suisse Intl';
+  font-style: normal;
+  font-size: 12px;
+  color: #e81c00;
+  height: 15px;
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "_id": {
+      "$oid": "000000000000000000000200"
+    },
+    "dictionary_data": {
+      "country": "000000000000000000000100",
+      "title": "Sample Region One",
+      "price_hotel": 4500,
+      "import_denied": false
+    }
+  },
+  {
+    "_id": {
+      "$oid": "000000000000000000000201"
+    },
+    "dictionary_data": {
+      "country": "000000000000000000000100",
+      "title": "Sample Region Two",
+      "price_hotel": 6200,
+      "import_denied": false
+    }
+  }
+]

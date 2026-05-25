@@ -1,0 +1,21 @@
+select.focus {
+  color: #1d1d1d;
+}
+select {
+  font-family: 'Suisse Intl';
+  font-style: medium;
+  font-size: 14px;
+  line-height: 20px;
+  padding-left: 16px;
+  padding-right: 16px;
+  outline: none;
+  font-style: medium;
+  width: 389px;
+  height: 36px;
+  background: #ffffff;
+  color: #1d1d1d;
+  outline: none;
+}
+option:not(:first-of-type) {
+  color: black;
+}
